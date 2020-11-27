@@ -72,7 +72,7 @@ int Converter::RGB2HSV(const Mat& sourceImage, Mat& destinationImage)
 	int height = sourceImage.rows;
 	int srcChannels = sourceImage.channels();
 
-	destinationImage = Mat(height, width, CV_8UC3);
+	destinationImage = Mat(height, width, CV_32FC3);
 	int dstChannels = destinationImage.channels();
 
 	for (int y = 0; y < height; y++)
@@ -130,9 +130,9 @@ int Converter::RGB2HSV(const Mat& sourceImage, Mat& destinationImage)
 				h += 360;
 
 			//
-			pDstRow[0] = uchar(v);
-			pDstRow[1] = uchar(s);
-			pDstRow[2] = uchar(h);
+			pDstRow[0] = v;
+			pDstRow[1] = s;
+			pDstRow[2] = h;
 		}
 	}
 
