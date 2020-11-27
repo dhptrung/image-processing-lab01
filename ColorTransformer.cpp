@@ -14,7 +14,8 @@ int ColorTransformer::ChangeContrast(const Mat& sourceImage, Mat& destinationIma
 }
 
 // Hàm tính lược đồ màu tổng quát cho ảnh bất kỳ
-int ColorTransformer::CalcHistogram(const Mat& sourceImage, Mat& histMatrix) {
+int ColorTransformer::CalcHistogram(const Mat& sourceImage, Mat& histMatrix) 
+{
 
 }
 
