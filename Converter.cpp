@@ -63,7 +63,8 @@ int Converter::GrayScale2RGB(const Mat& sourceImage, Mat& destinationImage)
 }
 
 // Hàm chuyển đổi không gian màu của ảnh từ RGB sang HSV
-int Converter::RGB2HSV(const Mat& sourceImage, Mat& destinationImage) {
+int Converter::RGB2HSV(const Mat& sourceImage, Mat& destinationImage) 
+{
 	if (sourceImage.data == NULL)
 		return 1;
 
@@ -139,16 +140,27 @@ int Converter::RGB2HSV(const Mat& sourceImage, Mat& destinationImage) {
 }
 
 // Hàm chuyển đổi không gian màu của ảnh từ HSV sang RGB
-int Converter::HSV2RGB(const Mat& sourceImage, Mat& destinationImage) {
+int Converter::HSV2RGB(const Mat& sourceImage, Mat& destinationImage) 
+{
 
 }
 
 
 // Hàm chuyển đổi không gian màu của ảnh
-int Converter::Convert(Mat& sourceImage, Mat& destinationImage, int type) {
+int Converter::Convert(Mat& sourceImage, Mat& destinationImage, int type) 
+{
 
 }
 
-int Converter::Convert(IplImage* sourceImage, IplImage* destinationImage, int type) {
+int Converter::Convert(IplImage* sourceImage, IplImage* destinationImage, int type) 
+{
 
+}
+
+Converter::Converter() 
+{
+}
+
+Converter::~Converter() 
+{
 }
