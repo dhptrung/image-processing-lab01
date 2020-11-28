@@ -182,7 +182,97 @@ int ColorTransformer::HistogramEqualization(const Mat& sourceImage, Mat& destina
 // Hàm cân bằng lược đồ màu tổng quát cho ảnh bất kỳ
 int ColorTransformer::DrawHistogram(const Mat& histMatrix, Mat& histImage) 
 {
+	Mat histMatrix_cl = histMatrix.clone(); //clone histMatrix for later usage
+	
+	if (!Normalize(histMatrix_cl)) //normalize the (cloned) histogram matrix
+		return 0;
 
+	int height = 300;
+	int width = 260;
+	uint16_t* pHistData = (uint16_t*)histMatrix_cl.data;
+	
+	//the histogram images array
+	Mat* histImageArray = new Mat[histMatrix_cl.rows];
+
+	if (histMatrix_cl.rows == 1) {
+		Point_<int> text_pos = Point_<int>(90, 20); //set up the text position in the image 
+		char name[10] = "GRAYSCALE"; 
+		histImageArray[0] = Mat(300, 260, CV_8UC1, Scalar(0)); 
+		putText(histImageArray[0], //writing text into the image
+			name,
+			text_pos,
+			FONT_HERSHEY_PLAIN,
+			0.8,
+			Scalar(255, 255, 255),
+			1,
+			LINE_8);
+		histImage = Mat(height, width, CV_8UC1);
+	}
+	else { //same as above
+		char name[4][2] = { "B","G","R" };
+		Point_<int> text_pos = Point_<int>(120, 20);
+		for (int i = 0; i < histMatrix_cl.rows; i++) { //initialize histogram images for each color channel 
+			histImageArray[i] = Mat(300, 260, CV_8UC1, Scalar(0));
+			putText(histImageArray[i],
+				name[i],
+				text_pos,
+				FONT_HERSHEY_PLAIN,
+				0.8,
+				Scalar(255, 255, 255),
+				1,
+				LINE_8);
+		}
+		histImage = Mat(height,width*3,CV_8UC1);
+	}
+
+	//drawing the histogram image(s)
+	for (int i = 0; i < histMatrix_cl.rows; i++) {
+		for (int j = 0; j < histMatrix_cl.cols; j++) {
+				int index = i * histMatrix_cl.cols + j;
+				uchar value = pHistData[index];
+				Point_<int> begin = Point_<int>(index % 256, height);
+				Point_<int> end = Point_<int>(index % 256, height - value);
+				line(histImageArray[i], begin, end, (255, 255, 255), 1);
+		}
+	}
+	//merge histogram image(s) together
+	for (int i = 0; i < histMatrix_cl.rows; i++) {
+		histImageArray[i].copyTo(histImage(Rect(i*width, 0, width, height)));
+	}
+
+	return 1;
+}
+//Hàm chuẩn hoá các giá trị trong histogram matrix về khoảng 0-255
+//this function normalize the histogram matrix values into range (0-255)
+int ColorTransformer::Normalize(Mat& histMatrix)
+{
+	if (histMatrix.empty()) { //check if the histogram matrix is empty
+		return 0;
+	}
+
+	int height = histMatrix.rows;
+	int width = histMatrix.cols;
+	uint16_t* pHistData = (uint16_t*)histMatrix.data;
+	int max = 0;
+
+	//find max value
+	for (int i = 0; i < height; i++) {
+		for (int j = 0; j < width; j++) {
+			int index = i * width+ j;
+			if (pHistData[index] > max)
+				max = pHistData[index];
+		}
+	}
+
+	//normalize
+	for (int i = 0; i < height; i++) {
+		for (int j = 0; j < width; j++) {
+			int index = i * width + j;
+			pHistData[index] = (uchar)(255 * (float)pHistData[index] / (float)max);
+		}
+	}
+
+	return 1;
 }
 
 // Hàm so sánh hai ảnh
