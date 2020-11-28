@@ -87,9 +87,9 @@ int Converter::RGB2HSV(const Mat& sourceImage, Mat& destinationImage)
 			uchar R = pSrcRow[2];
 
 			// (0, 1)
-			double r = double(R / 255);
-			double g = double(G / 255);
-			double b = double(B / 255);
+			double r = double(R) / 255;
+			double g = double(G) / 255;
+			double b = double(B) / 255;
 
 			double min, max, delta;
 			double h, s, v;
