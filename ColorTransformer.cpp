@@ -4,13 +4,69 @@
 // Hàm nhận vào một ảnh, thay đổi độ sáng của ảnh này và lưu kết quả vào ảnh mới
 int ColorTransformer::ChangeBrighness(const Mat& sourceImage, Mat& destinationImage, short b) 
 {
+	if (sourceImage.data == nullptr)
+		return 0;
+	int width = sourceImage.cols, height = sourceImage.rows, srcchannels = sourceImage.channels();
+	destinationImage = Mat(height, width, CV_8UC3);
+	int dstchannels = destinationImage.channels();
+	uchar lookup[256];
+	for (int i = 0; i < 256; i++)
+		lookup[i] = min(255, max(0, i + b));
 
+	for (int y = 0; y < height; y++)
+	{
+		const uchar* srcpRows = sourceImage.ptr<uchar>(y);
+		uchar* dstpRows = destinationImage.ptr<uchar>(y);
+
+		for (int x = 0; x < width; x++, srcpRows += srcchannels, dstpRows += dstchannels)
+		{
+			uchar B = srcpRows[0];
+			uchar G = srcpRows[1];
+			uchar R = srcpRows[2];
+
+			dstpRows[0] = lookup[B];
+			dstpRows[1] = lookup[G];
+			dstpRows[2] = lookup[R];
+		}
+	}
+	if (destinationImage.data == nullptr)
+		return 0;
+	else
+		return 1;
 }
 
 // Hàm nhận vào một ảnh, thay đổi độ tương phản của ảnh này và lưu kết quả vào ảnh mới
 int ColorTransformer::ChangeContrast(const Mat& sourceImage, Mat& destinationImage, float c) 
 {
+	if (sourceImage.data == nullptr)
+		return 0;
+	int width = sourceImage.cols, height = sourceImage.rows, srcchannels = sourceImage.channels();
+	destinationImage = Mat(height, width, CV_8UC3);
+	int dstchannels = destinationImage.channels();
+	uchar lookup[256];
+	for (int i = 0; i < 256; i++)
+		lookup[i] = min(255, max(0, i * c));
 
+	for (int y = 0; y < height; y++)
+	{
+		const uchar* srcpRows = sourceImage.ptr<uchar>(y);
+		uchar* dstpRows = destinationImage.ptr<uchar>(y);
+
+		for (int x = 0; x < width; x++, srcpRows += srcchannels, dstpRows += dstchannels)
+		{
+			uchar B = srcpRows[0];
+			uchar G = srcpRows[1];
+			uchar R = srcpRows[2];
+
+			dstpRows[0] = lookup[B];
+			dstpRows[1] = lookup[G];
+			dstpRows[2] = lookup[R];
+		}
+	}
+	if (destinationImage.data == nullptr)
+		return 0;
+	else
+		return 1;
 }
 
 // Hàm tính lược đồ màu tổng quát cho ảnh bất kỳ
@@ -72,7 +128,55 @@ int ColorTransformer::CalcHistogram(const Mat& sourceImage, Mat& histMatrix)
 // Hàm cân bằng lược đồ màu tổng quát cho ảnh bất kỳ
 int ColorTransformer::HistogramEqualization(const Mat& sourceImage, Mat& destinationImage) 
 {
+	if (sourceImage.data == NULL)
+		return 0;
 
+	Mat histMatrix;
+	CalcHistogram(sourceImage, histMatrix);
+
+	int width = sourceImage.cols, height = sourceImage.rows;
+	int srcChannels = sourceImage.channels();
+	cout << srcChannels << endl;
+	if (srcChannels == 1)
+		destinationImage = Mat(height, width, CV_8UC1);
+	else
+		destinationImage = Mat(height, width, CV_8UC3);
+
+	vector<vector<long long>> T(srcChannels, vector<long long>(256));
+
+	for (int y = 0; y < srcChannels; y++) {
+		uchar* pHistRow = histMatrix.ptr<uchar>(y);
+		T[y][0] = int(pHistRow[0]);
+		for (int x = 1; x < 256; x++) {
+			T[y][x] = T[y][x - 1] + pHistRow[x];
+		}
+	}
+
+	for (int y = 0; y < srcChannels; y++) {
+		uchar* pHistRow = histMatrix.ptr<uchar>(y);
+		int minVal = T[y][0];
+		int maxVal = T[y][255];
+		for (int x = 1; x < 256; x++) {
+			T[y][x] = uchar(((1.0 * (T[y][x] - minVal)) / (maxVal - minVal)) * 255.0);
+		}
+	}
+
+	for (int y = 0; y < height; y++) {
+		const uchar* pSrcRow = sourceImage.ptr<uchar>(y);
+		uchar* pDstRow = destinationImage.ptr<uchar>(y);
+		for (int x = 0; x < width; x++, pSrcRow += srcChannels, pDstRow += srcChannels) {
+			if (srcChannels == 1) {
+				pDstRow[0] = T[0][pSrcRow[0]];
+			}
+			else {
+				pDstRow[0] = T[0][pSrcRow[0]];
+				pDstRow[1] = T[1][pSrcRow[1]];
+				pDstRow[2] = T[2][pSrcRow[2]];
+			}
+		}
+	}
+
+	return 1;
 }
 
 // Hàm cân bằng lược đồ màu tổng quát cho ảnh bất kỳ
