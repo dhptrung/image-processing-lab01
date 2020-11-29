@@ -271,7 +271,27 @@ int ColorTransformer::Normalize(Mat& histMatrix)
 // Hàm so sánh hai ảnh
 float ColorTransformer::CompareImage(const Mat& image1, Mat& image2) 
 {
+	if (image1.empty() || image2.empty())
+		return -1;
 
+	Mat pHist1, pHist2;
+	CalcHistogram(image1, pHist1);
+	CalcHistogram(image2, pHist2);
+
+	int size1 = image1.cols * image1.rows;
+	int size2 = image2.cols * image2.rows;
+
+	int c =  pHist1.type();
+	float chenh = 0;
+	for (int y = 0; y < pHist1.rows; y++)
+	{
+		const unsigned int* pRow1 = pHist1.ptr<unsigned int>(y);
+		const unsigned int* pRow2 = pHist2.ptr<unsigned int>(y);
+		for (int x = 0; x < pHist1.cols; x++, pRow1++, pRow2++)
+		{
+			chenh += abs((pRow1[0] / float(size1)) - (pRow2[0] / float(size2)));
+		}		
+	}	return chenh;
 }
 
 ColorTransformer::ColorTransformer() 
