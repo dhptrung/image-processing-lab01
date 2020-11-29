@@ -6,13 +6,24 @@ int ColorTransformer::ChangeBrighness(const Mat& sourceImage, Mat& destinationIm
 {
 	if (sourceImage.data == nullptr)
 		return 0;
-	int width = sourceImage.cols, height = sourceImage.rows, srcchannels = sourceImage.channels();
+	
+	//Lấy width, height, srcChannels của sourceImage
+	int width = sourceImage.cols, height = sourceImage.rows, 
+	srcchannels = sourceImage.channels();
+	
+	//Khởi tạo ma trận destinationImage
 	destinationImage = Mat(height, width, CV_8UC3);
+	
 	int dstchannels = destinationImage.channels();
+	
+	//Mảng lookup với lookup[i] gồm 256 phần tử chứa giá trị của độ sáng i đã được tăng bởi b
+	//Nếu i + b < 0 thì lookup[i] = 0
+	//Nếu i + b > 255 thì lookup[i] = 255
 	uchar lookup[256];
 	for (int i = 0; i < 256; i++)
 		lookup[i] = min(255, max(0, i + b));
 
+	//Tạo destinationImage tương ứng với giá trị R, G, B tra trong lookup
 	for (int y = 0; y < height; y++)
 	{
 		const uchar* srcpRows = sourceImage.ptr<uchar>(y);
@@ -40,13 +51,23 @@ int ColorTransformer::ChangeContrast(const Mat& sourceImage, Mat& destinationIma
 {
 	if (sourceImage.data == nullptr)
 		return 0;
+	
+	//Lấy width, height, srcChannels của sourceImage
 	int width = sourceImage.cols, height = sourceImage.rows, srcchannels = sourceImage.channels();
+	
+	//Khởi tạo ma trận destinationImage
 	destinationImage = Mat(height, width, CV_8UC3);
+	
 	int dstchannels = destinationImage.channels();
+	
+	//Mảng lookup với lookup[i] gồm 256 phần tử chứa giá trị của độ sáng i đã được tăng bởi c
+	//Nếu i * c < 0 thì lookup[i] = 0
+	//Nếu i * c > 255 thì lookup[i] = 255
 	uchar lookup[256];
 	for (int i = 0; i < 256; i++)
 		lookup[i] = min(255, max(0, i * c));
 
+	//Tạo destinationImage tương ứng với giá trị R, G, B tra trong lookup
 	for (int y = 0; y < height; y++)
 	{
 		const uchar* srcpRows = sourceImage.ptr<uchar>(y);
