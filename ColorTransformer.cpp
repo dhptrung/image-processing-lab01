@@ -212,7 +212,7 @@ int ColorTransformer::DrawHistogram(const Mat& histMatrix, Mat& histImage)
 		char name[4][2] = { "B","G","R" };
 		Point_<int> text_pos = Point_<int>(120, 20);
 		for (int i = 0; i < histMatrix_cl.rows; i++) { //initialize histogram images for each color channel 
-			histImageArray[i] = Mat(300, 260, CV_8UC1, Scalar(0));
+			histImageArray[i] = Mat(300, 260, CV_8UC3, Scalar(0));
 			putText(histImageArray[i],
 				name[i],
 				text_pos,
@@ -222,7 +222,7 @@ int ColorTransformer::DrawHistogram(const Mat& histMatrix, Mat& histImage)
 				1,
 				LINE_8);
 		}
-		histImage = Mat(height,width*3,CV_8UC1);
+		histImage = Mat(height,width*3,CV_8UC3);
 	}
 
 	//drawing the histogram image(s)
@@ -232,7 +232,15 @@ int ColorTransformer::DrawHistogram(const Mat& histMatrix, Mat& histImage)
 				uchar value = pHistData[index];
 				Point_<int> begin = Point_<int>(index % 256, height);
 				Point_<int> end = Point_<int>(index % 256, height - value);
-				line(histImageArray[i], begin, end, (255, 255, 255), 1);
+				if (i == 0) {
+					line(histImageArray[i], begin, end, Scalar(255, 0, 0), 1);
+				}
+				else if (i == 1) {
+					line(histImageArray[i], begin, end, Scalar(0, 255, 0), 1);
+				}
+				else if (i == 2) {
+					line(histImageArray[i], begin, end, Scalar(0, 0, 255), 1);
+				}
 		}
 	}
 	//merge histogram image(s) together
