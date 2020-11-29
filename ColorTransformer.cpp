@@ -117,30 +117,35 @@ int ColorTransformer::HistogramEqualization(const Mat& sourceImage, Mat& destina
 	int width = sourceImage.cols, height = sourceImage.rows;
 	int srcChannels = sourceImage.channels();
 	cout << srcChannels << endl;
+
+	//Khởi tạo kích thước destinationImage bằng với sourceImage
 	if (srcChannels == 1)
 		destinationImage = Mat(height, width, CV_8UC1);
 	else
 		destinationImage = Mat(height, width, CV_8UC3);
 
+	//Khởi tạo ma trận T kích thước (srcChannels, 256)
 	vector<vector<long long>> T(srcChannels, vector<long long>(256));
 
+	//Tính T[x] = T[x - 1] + H[x] ứng với từng channel
 	for (int y = 0; y < srcChannels; y++) {
-		uchar* pHistRow = histMatrix.ptr<uchar>(y);
+		uint* pHistRow = histMatrix.ptr<uint>(y);
 		T[y][0] = int(pHistRow[0]);
 		for (int x = 1; x < 256; x++) {
 			T[y][x] = T[y][x - 1] + pHistRow[x];
 		}
 	}
 
+	//Chuẩn hóa T về [0, 255]
 	for (int y = 0; y < srcChannels; y++) {
 		uchar* pHistRow = histMatrix.ptr<uchar>(y);
-		int minVal = T[y][0];
 		int maxVal = T[y][255];
 		for (int x = 1; x < 256; x++) {
-			T[y][x] = uchar(((1.0 * (T[y][x] - minVal)) / (maxVal - minVal)) * 255.0);
+			T[y][x] = uchar(((1.0 * T[y][x]) / maxVal) * 255.0);
 		}
 	}
 
+	//Map độ sáng x của từng pixel của sourceImage ứng với T[x] vào destinationImage
 	for (int y = 0; y < height; y++) {
 		const uchar* pSrcRow = sourceImage.ptr<uchar>(y);
 		uchar* pDstRow = destinationImage.ptr<uchar>(y);
