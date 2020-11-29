@@ -159,7 +159,7 @@ int ColorTransformer::HistogramEqualization(const Mat& sourceImage, Mat& destina
 	return 1;
 }
 
-// Hàm cân bằng lược đồ màu tổng quát cho ảnh bất kỳ
+// Hàm vẽ lược đồ màu của ảnh bất kỳ
 int ColorTransformer::DrawHistogram(const Mat& histMatrix, Mat& histImage) 
 {
 	Mat histMatrix_cl = histMatrix.clone(); //clone histMatrix for later usage
