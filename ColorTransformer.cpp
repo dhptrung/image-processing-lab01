@@ -77,47 +77,27 @@ int ColorTransformer::CalcHistogram(const Mat& sourceImage, Mat& histMatrix)
 		return 0;
 	}
 
+	// Thông số ảnh sourceImage
+	int rows = sourceImage.rows;
+	int cols = sourceImage.cols;
 	int nChannels = sourceImage.channels();
 
 	// Khởi tạo ma trận histogram (nChannel x 256), giá trị mặc định là 0
-	histMatrix = Mat(nChannels, 256, CV_16UC1, Scalar(0));
-	int widthStep = histMatrix.step[0];		// khoảng cách byte giữa các dòng
-	ushort* pHistData = (ushort*)histMatrix.data;
+	histMatrix = Mat(nChannels, 256, CV_32SC1, Scalar(0));
 
-	// duyệt qua các dòng pixel của ảnh source
-	for (int y = 0; y < sourceImage.rows; y++)
+	// duyệt qua các dòng pixel của ảnh sourceImage
+	for (int y = 0; y < rows; y++)
 	{
-		// lấy con trỏ đầu dòng
+		// lấy con trỏ đầu dòng của sourceImage
 		const uchar* pRow = sourceImage.ptr<uchar>(y);
 
-		//for (int x = 0; x < sourceImage.cols * nChannels; x++)
-		//{
-		//	// Nếu nChannel = 1, i = 0, chỉ có 1 kênh 
-		//	// Nếu nChannel = 3, i = 0, 1, 2 tương ứng với điểm ảnh thuộc kênh B, G, R
-		//	int i = x % nChannels;
-
-		//	/* Đếm số lượng điểm ảnh
-		//	nChannel = 1, histMatrix chỉ có 1 dòng
-		//	nChannel = 3, histMatrix có các dòng 1, 2, 3 lần lược tương ứng kênh B, G, R
-		//	*/
-		//	// Công thức truy cập pData[rowIdx*matF.step1() + colIdx]
-		//	pHistData[i * widthStep + pRow[x]]++; // (pHistData + i*widthStep)[pRow[x]]++;
-		//}
-
-		for (int x = 0; x < sourceImage.cols; x++, pRow += nChannels)
+		for (int x = 0; x < cols; x++, pRow += nChannels)
 		{
-			// Nếu nChannel = 1, i = 0, chỉ có 1 kênh
-			// Nếu nChannel = 3, i = 0, 1, 2 tương ứng với điểm ảnh thuộc kênh B, G, R
-			if (nChannels == 1)
+			for (int k = 0; k < nChannels; k++)
 			{
-				pHistData[pRow[0]]++;
-			}
-			else if (nChannels == 3)
-			{
-				// Công thức truy cập pData[rowIdx*matF.step1() + colIdx]
-				pHistData[pRow[0]]++;
-				pHistData[widthStep + pRow[1]]++;
-				pHistData[widthStep * 2 + pRow[2]]++;
+				// lấy con trỏ đầu dòng (tương ứng từng kênh) của histMatrix
+				uint* pHistRow = histMatrix.ptr<uint>(k);
+				pHistRow[pRow[k]]++;
 			}
 		}
 	}
