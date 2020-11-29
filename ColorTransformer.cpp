@@ -174,7 +174,7 @@ int ColorTransformer::DrawHistogram(const Mat& histMatrix, Mat& histImage)
 
 	int height = 300;
 	int width = 260;
-	uint16_t* pHistData = (uint16_t*)histMatrix_cl.data;
+	uint32_t* pHistData = (uint32_t*)histMatrix_cl.data;
 	
 	//the histogram images array
 	Mat* histImageArray = new Mat[histMatrix_cl.rows];
@@ -245,7 +245,7 @@ int ColorTransformer::Normalize(Mat& histMatrix)
 
 	int height = histMatrix.rows;
 	int width = histMatrix.cols;
-	uint16_t* pHistData = (uint16_t*)histMatrix.data;
+	uint32_t* pHistData = (uint32_t*)histMatrix.data;
 	int max = 0;
 
 	//find max value
