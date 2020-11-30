@@ -188,9 +188,9 @@ int ColorTransformer::HistogramEqualization(const Mat& sourceImage, Mat& destina
 // Hàm vẽ lược đồ màu tổng quát của ảnh bất kỳ
 int ColorTransformer::DrawHistogram(const Mat& histMatrix, Mat& histImage) 
 {
-	Mat histMatrix_cl = histMatrix.clone(); //clone histMatrix for later usage
+	Mat histMatrix_cl = histMatrix.clone(); //clone histMatrix
 	
-	if (!Normalize(histMatrix_cl)) //normalize the (cloned) histogram matrix
+	if (!Normalize(histMatrix_cl)) //chuẩn hoá ma trận histogram
 		return 0;
 
 	int height = 300;
@@ -201,10 +201,10 @@ int ColorTransformer::DrawHistogram(const Mat& histMatrix, Mat& histImage)
 	Mat* histImageArray = new Mat[histMatrix_cl.rows];
 
 	if (histMatrix_cl.rows == 1) {
-		Point_<int> text_pos = Point_<int>(90, 20); //set up the text position in the image 
+		Point_<int> text_pos = Point_<int>(90, 20); //vị trí của chữ trên ảnh histogram
 		char name[10] = "GRAYSCALE"; 
-		histImageArray[0] = Mat(300, 260, CV_8UC1, Scalar(0)); 
-		putText(histImageArray[0], //writing text into the image
+		histImageArray[0] = Mat(300, 260, CV_8UC1, Scalar(0)); //khởi tạo ma trận ảnh cho grayscale
+		putText(histImageArray[0],
 			name,
 			text_pos,
 			FONT_HERSHEY_PLAIN,
@@ -214,10 +214,10 @@ int ColorTransformer::DrawHistogram(const Mat& histMatrix, Mat& histImage)
 			LINE_8);
 		histImage = Mat(height, width, CV_8UC1);
 	}
-	else { //same as above
+	else { //tương tự như trên
 		char name[4][2] = { "B","G","R" };
 		Point_<int> text_pos = Point_<int>(120, 20);
-		for (int i = 0; i < histMatrix_cl.rows; i++) { //initialize histogram images for each color channel 
+		for (int i = 0; i < histMatrix_cl.rows; i++) { //khởi tạo ma trận ảnh histogram cho mỗi kênh màu
 			histImageArray[i] = Mat(300, 260, CV_8UC3, Scalar(0));
 			putText(histImageArray[i],
 				name[i],
@@ -231,13 +231,13 @@ int ColorTransformer::DrawHistogram(const Mat& histMatrix, Mat& histImage)
 		histImage = Mat(height,width*3,CV_8UC3);
 	}
 
-	//drawing the histogram image(s)
+	//vẽ đồ thị histogram
 	for (int i = 0; i < histMatrix_cl.rows; i++) {
 		for (int j = 0; j < histMatrix_cl.cols; j++) {
 				int index = i * histMatrix_cl.cols + j;
-				uchar value = pHistData[index];
-				Point_<int> begin = Point_<int>(index % 256, height);
-				Point_<int> end = Point_<int>(index % 256, height - value);
+				uchar value = pHistData[index]; 
+				Point_<int> begin = Point_<int>(index % 256, height); //pixel bắt đầu 
+				Point_<int> end = Point_<int>(index % 256, height - value); //pixel đích
 				if (i == 0) {
 					line(histImageArray[i], begin, end, Scalar(255, 0, 0), 1);
 				}
@@ -249,7 +249,7 @@ int ColorTransformer::DrawHistogram(const Mat& histMatrix, Mat& histImage)
 				}
 		}
 	}
-	//merge histogram image(s) together
+	//ghép các ảnh histogram của mỗi kênh màu vào 1 ảnh duy nhất
 	for (int i = 0; i < histMatrix_cl.rows; i++) {
 		histImageArray[i].copyTo(histImage(Rect(i*width, 0, width, height)));
 	}
@@ -260,7 +260,7 @@ int ColorTransformer::DrawHistogram(const Mat& histMatrix, Mat& histImage)
 //this function normalize the histogram matrix values into range (0-255)
 int ColorTransformer::Normalize(Mat& histMatrix)
 {
-	if (histMatrix.empty()) { //check if the histogram matrix is empty
+	if (histMatrix.empty()) { //kiểm tra histMatrix
 		return 0;
 	}
 
@@ -269,7 +269,7 @@ int ColorTransformer::Normalize(Mat& histMatrix)
 	uint32_t* pHistData = (uint32_t*)histMatrix.data;
 	int max = 0;
 
-	//find max value
+	//tìm giá trị max
 	for (int i = 0; i < height; i++) {
 		for (int j = 0; j < width; j++) {
 			int index = i * width+ j;
@@ -278,7 +278,7 @@ int ColorTransformer::Normalize(Mat& histMatrix)
 		}
 	}
 
-	//normalize
+	//chuẩn hoá
 	for (int i = 0; i < height; i++) {
 		for (int j = 0; j < width; j++) {
 			int index = i * width + j;
