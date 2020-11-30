@@ -292,17 +292,21 @@ int ColorTransformer::Normalize(Mat& histMatrix)
 // Hàm so sánh hai ảnh
 float ColorTransformer::CompareImage(const Mat& image1, Mat& image2) 
 {
+	//nếu một trong hai ảnh đưa vào không hợp lệ thì trả về -1 (tức là sai).
+	//Vì các giá trị nguyên không âm sẽ là giá trị trả về độ chênh lệnh giữa hai lược đồ màu.
 	if (image1.empty() || image2.empty())
 		return -1;
-
+	
+	//Gọi hàm để tạo hai histogram pHist1,pHist2 từ hai ảnh image1 và image2
 	Mat pHist1, pHist2;
 	CalcHistogram(image1, pHist1);
 	CalcHistogram(image2, pHist2);
 
+	//kích thước của từng ảnh.
 	int size1 = image1.cols * image1.rows;
 	int size2 = image2.cols * image2.rows;
-
-	int c =  pHist1.type();
+	
+	//khởi tạo chênh lệch = 0
 	float chenh = 0;
 	for (int y = 0; y < pHist1.rows; y++)
 	{
@@ -310,6 +314,9 @@ float ColorTransformer::CompareImage(const Mat& image1, Mat& image2)
 		const unsigned int* pRow2 = pHist2.ptr<unsigned int>(y);
 		for (int x = 0; x < pHist1.cols; x++, pRow1++, pRow2++)
 		{
+			//công thức tính độ chênh lệnh là tổng độ chênh lệch của từng phần tử
+			//tại vị trí như nhau giữa hai lược đồ màu.
+			//từng phần tử chia cho kích thước của ảnh là để đưa hai histogram về chung thang đo từ [0,1]
 			chenh += abs((pRow1[0] / float(size1)) - (pRow2[0] / float(size2)));
 		}		
 	}	return chenh;
