@@ -161,7 +161,7 @@ int ColorTransformer::HistogramEqualization(const Mat& sourceImage, Mat& destina
 	for (int y = 0; y < srcChannels; y++) {
 		uchar* pHistRow = histMatrix.ptr<uchar>(y);
 		int maxVal = T[y][255];
-		for (int x = 1; x < 256; x++) {
+		for (int x = 0; x < 256; x++) {
 			T[y][x] = uchar(((1.0 * T[y][x]) / maxVal) * 255.0);
 		}
 	}
